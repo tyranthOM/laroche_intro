@@ -1,0 +1,171 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ShoppingBag, ArrowRight, ArrowLeft, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { getStoreStatus } from '../services/orderService';
+import CartItem from '../components/CartItem';
+import './Cart.css';
+
+const Cart = () => {
+  const { cartItems, totalAmount } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [agreedPrivacy, setAgreedPrivacy] = useState(() => {
+    return localStorage.getItem('laroche_privacy_agreed') === 'true';
+  });
+
+  const [storeStatus, setStoreStatus] = useState({ paused: false, reason: '', resumeAt: null });
+
+  useEffect(() => {
+    getStoreStatus().then((data) => {
+      if (data) setStoreStatus(data);
+    }).catch(() => {});
+  }, []);
+
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center bg-transparent px-4 text-center">
+        <div className="w-20 h-20 rounded-full bg-[#FFF9EC] dark:bg-[#2B2421] border border-[#ECD5A5] dark:border-[#4A3B32] shadow-warm-md flex items-center justify-center mb-5 text-terracotta">
+          <ShoppingBag className="w-10 h-10" />
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-espresso dark:text-white mb-2">
+          Your Cart is Empty
+        </h2>
+        <p className="text-sm text-taupe dark:text-stone-400 max-w-sm mb-6">
+          Looks like you haven't added any delicious dishes yet. Explore our fresh menu to get started.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/menu')}
+          className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-terracotta hover:bg-terracotta-hover text-white font-bold text-sm shadow-glow-terracotta transition-all"
+        >
+          <span>Explore Fresh Menu</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  const grandTotal = totalAmount;
+
+  return (
+    <div className="min-h-screen bg-transparent py-8 px-4 sm:px-6 pb-28 transition-colors">
+      <div className="max-w-4xl mx-auto">
+        
+        {/* Back Link & Header */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => navigate('/menu')}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-taupe dark:text-stone-400 hover:text-espresso dark:hover:text-white transition-colors mb-3"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Menu</span>
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-serif font-medium text-espresso dark:text-white tracking-tight">
+            Order Review ({cartItems.reduce((s, i) => s + i.quantity, 0)} items)
+          </h1>
+          <p className="text-xs sm:text-sm text-taupe dark:text-stone-400 mt-1 font-sans font-normal">
+            Freshly prepared artisanal food ready for counter pickup.
+          </p>
+        </div>
+
+        {/* Layout Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          
+          {/* Cart Items List */}
+          <div className="md:col-span-7 space-y-3">
+            {cartItems.map((item) => (
+              <CartItem key={item.key || `${item.menuItem}-${item.name}`} item={item} />
+            ))}
+          </div>
+
+          {/* Bill Summary Receipt */}
+          <div className="md:col-span-5 bg-[#FFF9EC] dark:bg-[#2B2421] rounded-3xl border border-[#ECD5A5] dark:border-[#4A3B32] shadow-warm-lg p-6 sticky top-28 font-sans">
+            <h3 className="font-serif font-medium text-espresso dark:text-white text-lg pb-3 mb-4 border-b border-stone-100 dark:border-stone-800">
+              Bill Summary
+            </h3>
+
+            <div className="space-y-3 text-xs sm:text-sm">
+              <div className="flex justify-between text-taupe dark:text-stone-400">
+                <span>Item Total</span>
+                <span className="font-medium text-espresso dark:text-stone-100 font-price">₹{totalAmount}</span>
+              </div>
+              <div className="pt-3 border-t border-stone-200/80 dark:border-stone-800 flex justify-between items-center font-medium text-espresso dark:text-white text-base sm:text-lg">
+                <span>Total to Pay</span>
+                <span className="text-terracotta font-price text-xl">₹{grandTotal}</span>
+              </div>
+            </div>
+
+            {storeStatus.paused && (
+              <div className="mt-4 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold block mb-0.5">Kitchen Rush: New Orders Temporarily Paused</span>
+                  <span>{storeStatus.reason || 'Please wait a few minutes while the kitchen clears current orders. Your cart is saved.'}</span>
+                </div>
+              </div>
+            )}
+
+            {/* 1-Time Terms & Privacy Consent */}
+            <label className="flex items-start gap-2.5 mt-5 cursor-pointer select-none text-left bg-[#FFF9EC] dark:bg-[#2A221E] p-3 rounded-2xl border border-[#ECD5A5]/60 dark:border-[#3D312A]">
+              <input
+                type="checkbox"
+                checked={agreedPrivacy}
+                onChange={(e) => {
+                  setAgreedPrivacy(e.target.checked);
+                  if (e.target.checked) {
+                    localStorage.setItem('laroche_privacy_agreed', 'true');
+                  } else {
+                    localStorage.removeItem('laroche_privacy_agreed');
+                  }
+                }}
+                className="mt-0.5 rounded border-[#ECD5A5] text-terracotta focus:ring-terracotta cursor-pointer w-4 h-4 accent-[#A6472B]"
+              />
+              <span className="text-xs text-taupe dark:text-stone-300 leading-snug">
+                I accept the{' '}
+                <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="underline font-bold text-espresso dark:text-white">Terms</a>
+                {' '}&{' '}
+                <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline font-bold text-espresso dark:text-white">Privacy Policy</a>
+              </span>
+            </label>
+
+            <button
+              type="button"
+              disabled={storeStatus.paused || !agreedPrivacy}
+              onClick={() => {
+                if (storeStatus.paused || !agreedPrivacy) return;
+                if (!user) {
+                  navigate('/login?redirect=/checkout');
+                } else {
+                  navigate('/checkout');
+                }
+              }}
+              className={`w-full mt-4 py-3.5 rounded-full font-bold text-sm shadow-glow-terracotta flex items-center justify-center gap-2 transition-all ${
+                storeStatus.paused || !agreedPrivacy
+                  ? 'bg-stone-300 dark:bg-stone-700 text-stone-500 dark:text-stone-400 cursor-not-allowed shadow-none'
+                  : 'bg-terracotta hover:bg-terracotta-hover text-white hover:scale-[1.01] active:scale-[0.99] cursor-pointer'
+              }`}
+            >
+              <span>{storeStatus.paused ? 'Orders Temporarily Paused' : `Proceed to Pay ₹${grandTotal}`}</span>
+              {!storeStatus.paused && agreedPrivacy && <ArrowRight className="w-4 h-4" />}
+            </button>
+
+            <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-taupe dark:text-stone-400 mt-4">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>100% Safe & Secure Online Payment</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default Cart;
+
+

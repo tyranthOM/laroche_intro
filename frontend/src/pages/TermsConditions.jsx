@@ -1,0 +1,97 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, FileText, CheckCircle2 } from 'lucide-react';
+import SEO from '../components/SEO';
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://larochecafe.in/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Terms & Conditions',
+      item: 'https://larochecafe.in/terms-and-conditions',
+    },
+  ],
+};
+
+const TermsConditions = () => {
+  return (
+    <div className="min-h-screen bg-transparent text-espresso py-12 px-4 sm:px-6 lg:px-8">
+      <SEO
+        title="Terms & Conditions | La Roche Cafe"
+        description="Terms of service, counter pickup protocols, and cancellation policies for the La Roche Cafe preorder system at SAKEC Chembur, Mumbai."
+        canonical="https://larochecafe.in/terms-and-conditions"
+        schema={breadcrumbSchema}
+      />
+      <div className="max-w-3xl mx-auto bg-[#FFF9EC] dark:bg-[#23231C] rounded-3xl border border-[#ECD5A5] dark:border-[#3D3D30] p-6 sm:p-10 shadow-warm-xl">
+        <Link
+          to="/menu"
+          className="inline-flex items-center gap-2 text-xs font-bold text-taupe hover:text-espresso dark:text-stone-300 dark:hover:text-white mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Menu</span>
+        </Link>
+
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-terracotta text-white flex items-center justify-center shadow-glow-terracotta">
+            <FileText className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-espresso dark:text-white">
+              Terms & Conditions
+            </h1>
+            <p className="text-xs text-taupe dark:text-stone-400">Last updated: October 2026</p>
+          </div>
+        </div>
+
+        <div className="space-y-6 text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-sans">
+          <section>
+            <h2 className="text-lg font-bold text-espresso dark:text-white mb-2 font-serif flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-terracotta" /> 1. Ordering & Counter Pickup
+            </h2>
+            <p>
+              La Roche Cafe operates a digital preorder & express counter pickup model. Orders placed through the website or PWA app are prepared in sequence based on kitchen capacity.
+            </p>
+            <ul className="list-disc pl-5 mt-2 space-y-1 text-xs sm:text-sm">
+              <li>Orders are confirmed once payment is successfully processed.</li>
+              <li>Customers will receive real-time notifications when their order is ready for counter pickup.</li>
+              <li>Please provide your Order ID or Token number at the pickup counter.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-espresso dark:text-white mb-2 font-serif flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-terracotta" /> 2. Payments & Refunds
+            </h2>
+            <p>
+              Digital payments are securely handled via Razorpay. If an ordered item is out of stock or cannot be fulfilled, the cafe staff will assist you with an instant substitution or initiate a direct refund.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-espresso dark:text-white mb-2 font-serif flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-terracotta" /> 3. Food Freshness & 10-Minute Quality Window
+            </h2>
+            <p>
+              All coffees, artisan toasties, and baked goods are prepared fresh to order. We provide a <strong>10-minute Peak Freshness window</strong> immediately following the &quot;Ready for Pickup&quot; notification.
+            </p>
+            <p className="mt-2 text-xs sm:text-sm">
+              Because freshly grilled sandwiches, paninis, and hot coffees naturally lose temperature and crispness over time, the café bears no liability for sogginess, texture change, melting (desserts/shakes), or loss of heat if an order is collected beyond this 10-minute timeframe. Customers are strongly encouraged to collect their orders promptly upon counter notification.
+            </p>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TermsConditions;

@@ -1,0 +1,417 @@
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import api from '../services/api';
+import FoodCard from '../components/FoodCard';
+import HeroSection from '../components/HeroSection';
+import FullWidthOffersCarousel from '../components/FullWidthOffersCarousel';
+import CategoryRail from '../components/CategoryRail';
+import FeaturedCarousel from '../components/FeaturedCarousel';
+import FloatingOrderBar from '../components/FloatingOrderBar';
+import SEO from '../components/SEO';
+import './Menu.css';
+
+const Menu = () => {
+  const [items, setItems] = useState([]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const searchQuery = searchParams.get('q') || '';
+  const [activeCategory, setActiveCategory] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const sectionRefs = useRef({});
+  const horizontalRailRefs = useRef({});
+
+  useEffect(() => {
+    // 1. Instant Cache-First Display
+    try {
+      const cached = localStorage.getItem('laroche_menu_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setItems(parsed);
+          setLoading(false);
+        }
+      }
+    } catch {
+      // Ignore cache parse error and fallback to network
+    }
+
+    // 2. Background Revalidation
+    const fetchMenu = async () => {
+      try {
+        const response = await api.get('/menu');
+        if (Array.isArray(response.data)) {
+          setItems(response.data);
+          localStorage.setItem('laroche_menu_cache', JSON.stringify(response.data));
+        } else {
+          setItems((current) => {
+            if (!current || current.length === 0) {
+              setError('Unable to load dishes. Please ensure the backend server is active.');
+            }
+            return current;
+          });
+        }
+      } catch (err) {
+        setItems((current) => {
+          if (!current || current.length === 0) {
+            setError('Could not load the menu. Please check connection and retry.');
+          }
+          return current;
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+  }, []);
+
+  const normalizeCategory = (cat) => {
+    if (!cat) return '';
+    const trimmed = String(cat).trim();
+    if (/^chat/i.test(trimmed)) return 'Chaat';
+    return trimmed;
+  };
+
+  const categories = useMemo(() => {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    return [...new Set(items.map((item) => normalizeCategory(item.category)))].filter((c) => c && c !== 'Add-ons');
+  }, [items]);
+
+  useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0]);
+    }
+  }, [categories, activeCategory]);
+
+  const groupedItems = useMemo(() => {
+    if (!Array.isArray(items) || items.length === 0) return {};
+    const groups = {};
+    categories.forEach((cat) => {
+      groups[cat] = items.filter((item) => normalizeCategory(item.category) === cat);
+    });
+    return groups;
+  }, [items, categories]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const q = searchQuery.toLowerCase();
+    return items
+      .map((item) => ({ ...item, category: normalizeCategory(item.category) }))
+      .filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          (item.category && item.category.toLowerCase().includes(q))
+      );
+  }, [items, searchQuery]);
+
+  // Track category scrolling with IntersectionObserver for Sticky Ribbon highlight
+  useEffect(() => {
+    if (categories.length === 0 || searchQuery) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveCategory(entry.target.dataset.category);
+          }
+        });
+      },
+      { rootMargin: '-180px 0px -50% 0px', threshold: 0.1 }
+    );
+
+    Object.values(sectionRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [categories, searchQuery]);
+
+  const handleSelectCategory = (catKey) => {
+    setActiveCategory(catKey);
+    const target = sectionRefs.current[catKey];
+    if (target) {
+      // Accurately measure dynamic sticky header (Navbar + CategoryRail + any active banner)
+      const navbarEl = document.querySelector('header, .navbar, nav');
+      const railEl = document.getElementById('category-rail-section');
+      const bannerEl = document.querySelector('.bg-gradient-to-r');
+
+      const navbarH = navbarEl ? navbarEl.offsetHeight : 64;
+      const railH = railEl ? railEl.offsetHeight : 88;
+      const bannerH = bannerEl ? bannerEl.offsetHeight : 0;
+
+      const totalHeaderOffset = navbarH + railH + bannerH + 12; // 12px breathing room above category title
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - totalHeaderOffset;
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const handleExploreClick = () => {
+    const target = document.getElementById('category-rail-section');
+    if (target) {
+      const navbarEl = document.querySelector('header, .navbar, nav');
+      const navbarH = navbarEl ? navbarEl.offsetHeight : 64;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navbarH - 8;
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      });
+    }
+  };
+
+
+  const handleScrollHorizontalRail = (cat, direction) => {
+    const rail = horizontalRailRefs.current[cat];
+    if (rail) {
+      if (direction === -99) {
+        rail.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        rail.scrollBy({ left: direction * 320, behavior: 'smooth' });
+      }
+    }
+  };
+
+  if (error && items.length === 0) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-transparent px-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mb-4 text-2xl font-bold">
+          ⚠️
+        </div>
+        <h3 className="text-xl font-bold text-espresso mb-2">Unable to Load Menu</h3>
+        <p className="text-sm text-taupe max-w-sm mb-6">{error}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="px-6 py-2.5 rounded-full bg-espresso text-white font-bold text-sm shadow-warm-md hover:bg-espresso-light transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  const menuSchema = useMemo(() => {
+    if (!categories.length) return null;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Menu',
+      name: 'La Roche Cafe Artisanal Menu',
+      url: 'https://larochecafe.in/menu',
+      hasMenuSection: categories.map((cat) => ({
+        '@type': 'MenuSection',
+        name: cat,
+        numberOfItems: groupedItems[cat]?.length || 0,
+      })),
+    };
+  }, [categories, groupedItems]);
+
+  const seoTitle = searchQuery
+    ? `Search: "${searchQuery}" | Menu | La Roche Cafe`
+    : 'La Roche Cafe';
+
+  const seoDesc = searchQuery
+    ? `Find "${searchQuery}" on the La Roche Cafe menu. Freshly prepared artisanal food & specialty coffee at SAKEC Chembur, Mumbai.`
+    : 'Browse freshly pressed sourdough toasties, artisan cold brews, shakes, chaat and combos at La Roche Cafe, SAKEC Chembur, Mumbai.';
+
+  const canonicalUrl = searchQuery
+    ? `https://larochecafe.in/menu?q=${encodeURIComponent(searchQuery)}`
+    : 'https://larochecafe.in/';
+
+  return (
+    <div className="min-h-screen bg-transparent pb-36 md:pb-24">
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        canonical={canonicalUrl}
+        schema={menuSchema}
+      />
+
+      {/* 1. Full-Bleed Cinematic Hero Section */}
+      {!searchQuery && <HeroSection onExploreClick={handleExploreClick} />}
+
+      {/* 2. Dynamic "Popular Right Now" Curated Spotlight Carousel */}
+      {!searchQuery && <FeaturedCarousel allItems={items} />}
+
+      {/* 3. Full-Bleed Edge-to-Edge Offers Carousel */}
+      {!searchQuery && <FullWidthOffersCarousel onExploreClick={handleExploreClick} />}
+
+      {/* 4. Unified Sticky Category Ribbon */}
+      {!searchQuery && (
+        <CategoryRail
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={handleSelectCategory}
+        />
+      )}
+
+      {/* 5. Main Menu Content */}
+      <main id="menu-content" className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {loading && items.length === 0 ? (
+          /* Sleek Skeleton Loading State: Displays immediately instead of blocking the screen */
+          <div className="space-y-8 animate-pulse">
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="h-9 w-28 bg-[#ECD5A5]/30 dark:bg-stone-800 rounded-full shrink-0" />
+              ))}
+            </div>
+            <div className="space-y-4">
+              <div className="h-6 w-36 bg-[#ECD5A5]/40 dark:bg-stone-800 rounded-md" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <div key={n} className="bg-[#FFF9EC]/80 dark:bg-[#2B2421]/80 rounded-2xl border border-[#ECD5A5]/40 dark:border-stone-800 overflow-hidden">
+                    <div className="aspect-[4/3] bg-stone-200/70 dark:bg-stone-800" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-stone-200/70 dark:bg-stone-800 rounded w-3/4" />
+                      <div className="h-3 bg-stone-200/70 dark:bg-stone-800 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : searchQuery ? (
+          /* Search Results View */
+          <div className="pt-2 sm:pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b border-[#ECD5A5] dark:border-[#3D3D30]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-terracotta/15 text-terracotta flex items-center justify-center font-bold">
+                  <Search className="w-4 h-4" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-espresso dark:text-white">
+                  {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/menu')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#140D0A] hover:bg-terracotta text-white text-xs font-bold transition-all shadow-warm-sm cursor-pointer"
+                title="Clear search and view all menu dishes"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Clear Filter (Show All)</span>
+              </button>
+            </div>
+
+            {searchResults.length === 0 ? (
+              <div className="py-20 text-center bg-[#FFF9EC] dark:bg-[#2B2421] rounded-3xl border border-[#ECD5A5] dark:border-stone-700 shadow-warm-sm p-8 max-w-lg mx-auto">
+                <span className="text-4xl mb-3 block">🔍</span>
+                <h3 className="text-lg font-bold text-espresso dark:text-white mb-1">No dishes found</h3>
+                <p className="text-xs sm:text-sm text-taupe dark:text-stone-400 mb-6">
+                  We couldn't find anything matching "{searchQuery}". Try searching for pizza, sandwich, coffee, or pasta.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/menu')}
+                  className="px-5 py-2 rounded-full bg-terracotta text-white font-bold text-xs uppercase tracking-wider hover:bg-[#7E351F] transition-all"
+                >
+                  Show Full Menu
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
+                {searchResults.map((item) => (
+                  <FoodCard key={item._id} item={item} allItems={items} />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="py-16 text-center bg-[#FFF9EC] dark:bg-[#2B2421] rounded-3xl border border-[#ECD5A5] dark:border-stone-700 shadow-warm-sm p-8 max-w-lg mx-auto my-8">
+            <span className="text-4xl mb-3 block">🍽️</span>
+            <h3 className="text-lg font-bold text-espresso dark:text-white mb-1">No Menu Dishes Available</h3>
+            <p className="text-xs sm:text-sm text-taupe dark:text-stone-400 mb-6">
+              The menu items are currently empty or loading from the database.
+            </p>
+          </div>
+        ) : (
+          /* Categorized Food Rails with Compact Horizontal Items */
+          <div className="space-y-6 sm:space-y-8 mt-2">
+
+            {categories.map((cat) => {
+              const catItems = groupedItems[cat] || [];
+              if (catItems.length === 0) return null;
+
+              return (
+                <section
+                  key={cat}
+                  data-category={cat}
+                  ref={(el) => (sectionRefs.current[cat] = el)}
+                  className="scroll-mt-32"
+                >
+                  {/* Category Header with Item Count & Horizontal Nav Controls */}
+                  <div className="flex items-center justify-between pb-1.5 mb-2.5 border-b border-[#ECD5A5] dark:border-[#3D3D30]">
+                    <div className="flex items-baseline gap-2">
+                      <h2 className="text-base sm:text-lg md:text-xl font-serif font-medium text-espresso dark:text-white tracking-tight">
+                        {cat}
+                      </h2>
+                      <span className="text-[11px] sm:text-xs font-medium text-taupe dark:text-stone-400 font-sans">
+                        ({catItems.length})
+                      </span>
+                    </div>
+
+                    {/* Navigation & Swipe Controls (Visible on BOTH mobile & desktop whenever items > 2) */}
+                    {catItems.length > 2 && (
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        
+
+                        {/* Interactive Arrow Buttons */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleScrollHorizontalRail(cat, -1)}
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FFF9EC] dark:bg-[#23231C] border border-[#ECD5A5] dark:border-stone-700 shadow-warm-sm text-espresso dark:text-white flex items-center justify-center hover:bg-terracotta hover:text-white hover:border-terracotta active:scale-90 transition-all cursor-pointer"
+                            aria-label={`Scroll ${cat} left`}
+                            title="Previous items"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleScrollHorizontalRail(cat, 1)}
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-terracotta text-white border border-terracotta shadow-warm-sm flex items-center justify-center hover:bg-[#7E351F] active:scale-90 transition-all cursor-pointer shadow-glow-terracotta"
+                            aria-label={`Scroll ${cat} right`}
+                            title="More items"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Horizontal Scroll Track for Menu Items under this Category */}
+                  <div
+                    ref={(el) => (horizontalRailRefs.current[cat] = el)}
+                    className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-3 pt-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth"
+                  >
+                    {catItems.map((item) => (
+                      <div
+                        key={item._id}
+                        className="w-[160px] xs:w-[175px] sm:w-[220px] md:w-[245px] snap-start flex-shrink-0 flex flex-col"
+                      >
+                        <FoodCard item={item} allItems={items} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* 6. Persistent Floating Order Bar */}
+      <FloatingOrderBar />
+    </div>
+  );
+};
+
+export default Menu;

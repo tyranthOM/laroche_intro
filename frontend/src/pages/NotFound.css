@@ -1,0 +1,174 @@
+/* La Roche Bespoke 404 Coffee Break Error Page */
+.not-found-theme-wrapper {
+  position: relative;
+  min-height: calc(100vh - 80px);
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background-color: #A6472B; /* La Roche Signature Artisanal Terracotta/Rust */
+  color: #FFFFFF;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.dark .not-found-theme-wrapper {
+  background-color: #1A120E; /* Deep Espresso Roast for Dark Mode */
+}
+
+/* Warm radial vignette */
+.not-found-ambient-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.28) 100%);
+  pointer-events: none;
+}
+
+.dark .not-found-ambient-glow {
+  background: radial-gradient(circle at center, rgba(166, 71, 43, 0.22) 0%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+.not-found-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 720px;
+  width: 100%;
+}
+
+/* 4 [Latte] 4 Layout */
+.display-404 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  user-select: none;
+}
+
+@media (min-width: 640px) {
+  .display-404 {
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+}
+
+.digit-4 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(6.5rem, 16vw, 15rem);
+  font-weight: 900;
+  line-height: 0.85;
+  color: #FFFFFF;
+  letter-spacing: -0.04em;
+  text-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.coffee-cup-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(100px, 20vw, 230px);
+  height: clamp(100px, 20vw, 230px);
+  flex-shrink: 0;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.35));
+  animation: gentle-steam 4s ease-in-out infinite alternate;
+}
+
+.coffee-cup-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@keyframes gentle-steam {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-4px) scale(1.02);
+  }
+}
+
+/* Headline */
+.not-found-heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.015em;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.not-found-subtext {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #FEECE5;
+  max-width: 520px;
+  margin: 0 auto 2.25rem auto;
+  opacity: 0.95;
+}
+
+.dark .not-found-subtext {
+  color: #E2D7D1;
+}
+
+/* Action Pill Button */
+.not-found-action {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-coffee-break {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  color: #A6472B;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.75rem, 1.1vw, 0.88rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.2rem;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 2px solid transparent;
+}
+
+.btn-coffee-break:hover {
+  background-color: #FFF9EC;
+  color: #7E351F;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.btn-coffee-break:active {
+  transform: translateY(0);
+}
+
+.dark .btn-coffee-break {
+  background-color: #A6472B;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .btn-coffee-break:hover {
+  background-color: #7E351F;
+  color: #FFFFFF;
+}
+
+.dark .btn-coffee-break svg {
+  color: #FFFFFF !important;
+}

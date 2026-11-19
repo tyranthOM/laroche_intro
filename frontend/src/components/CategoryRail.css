@@ -1,0 +1,27 @@
+/* Category Rail specific transitions */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Strict sticky top offset: mathematically matches navbar fixed height across all phone notches and devices */
+#category-rail-section {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: calc(max(env(safe-area-inset-top, 0px), 14px) + 56px) !important;
+}
+
+@media (min-width: 640px) {
+  #category-rail-section {
+    top: calc(env(safe-area-inset-top, 0px) + 64px) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  #category-rail-section {
+    top: calc(env(safe-area-inset-top, 0px) + 80px) !important;
+  }
+}

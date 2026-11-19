@@ -1,0 +1,312 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Custom Cafe Bespoke Theme System --- */
+:root {
+  /* Core Color Tokens - Warm Cafe Biscuit & Buttermilk Theme */
+  --cream: #F9EAC7;              /* Primary background — exact #F9EAC7 warm cafe cream */
+  --cream-2: #F5D7B6;            /* Secondary surface — warm doodle & accent tone */
+  --ink: #2A2A22;                /* Primary text, dark surfaces (nav-dark card, buttons) */
+  --ink-soft: #5A5748;           /* Secondary/body text — softer than pure ink */
+  --rust: #A6472B;               /* Primary accent — CTAs, eyebrow icon, price accents */
+  --rust-deep: #7E351F;          /* Hover state for rust, hero gradient depth */
+  --sage: #78826B;               /* Secondary accent — used sparingly in illustrations */
+  --wheat: #C9A66B;              /* Tertiary accent — dish-card art, the "dot" icon in hero */
+
+  /* Semantic Mappings */
+  --bg-oat: #F9EAC7;
+  --surface: #FFF9EC;
+  --surface-card: #FFF9EC;
+  --surface-elevated: #F9EAC7;
+  --espresso: #2A2A22;
+  --copper: #7E351F;
+  --caramel: #A6472B;
+  --terracotta: #A6472B;
+  --border-light: #ECD5A5;
+  --border-subtle: #F5D7B6;
+  --border: #ECD5A5;
+  --glass-bg: rgba(249, 234, 199, 0.94);
+  --glass-border: rgba(236, 213, 165, 0.85);
+  --text-primary: #2A2A22;
+  --text-secondary: #5A5748;
+  --taupe: #5A5748;
+  --on-surface: #2A2A22;
+  --on-surface-secondary: #5A5748;
+  --on-surface-tertiary: #78826B;
+  --brand-primary: #A6472B;
+  --brand-gradient: linear-gradient(135deg, #A6472B 0%, #7E351F 100%);
+  --shadow-card: 0 4px 16px rgba(42, 42, 34, 0.06);
+  --shadow-hover: 0 8px 24px rgba(42, 42, 34, 0.12);
+  --radius-lg: 1.25rem;
+  --radius-md: 0.875rem;
+  --radius-pill: 9999px;
+  --space-lg: 1.5rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.dark {
+  --bg-oat: #1A1A14;              /* Deep Ink Night */
+  --surface: #23231C;             /* Dark Ink Card */
+  --surface-card: #23231C;
+  --surface-elevated: #2F2F26;    /* Elevated Ink Surface */
+  --espresso: #F2EDE2;            /* Light Cream Text */
+  --copper: #C9A66B;              /* Wheat Accent */
+  --caramel: #A6472B;             /* Warm Rust */
+  --terracotta: #C97257;
+  --border-light: #3D3D30;
+  --border-subtle: #333328;
+  --border: #3D3D30;
+  --glass-bg: rgba(26, 26, 20, 0.95);
+  --glass-border: rgba(61, 61, 48, 0.85);
+  --text-primary: #F2EDE2;
+  --text-secondary: #C4BFB2;
+  --taupe: #C4BFB2;
+  --on-surface: #FFFFFF;
+  --on-surface-secondary: #DDD8CB;
+  --on-surface-tertiary: #A8A396;
+  --brand-primary: #A6472B;
+  --brand-gradient: linear-gradient(135deg, #A6472B 0%, #C97257 100%);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.55);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.7);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+  background-color: var(--bg-oat);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  background-color: var(--bg-oat);
+  background-image: url('/cafe-pattern-bg.png');
+  background-repeat: repeat;
+  background-size: 356px auto;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  min-height: 100dvh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark html, .dark body {
+  background-color: #1A1718;
+  background-image: none;
+  color: #F5EBE6;
+}
+
+/* =========================================================================
+   TYPOGRAPHY SYSTEM
+   Display / Headlines / Prices: Fraunces (Variable Soft-Serif with optical size)
+   Body / UI / Navigation / Labels: Inter (Neutral Sans)
+   ========================================================================= */
+
+/* Display / Headlines — Fraunces */
+h1, h2, h3, .font-display, .font-serif, .font-heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* Accent Italics */
+.font-serif em, .font-serif i, em.font-serif, i.font-serif, .font-accent {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Price tags in Fraunces (gives menu-card feel rather than UI-label feel) */
+.font-price, .price-tag, .card-price, .menu-price, [data-price] {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Logo Wordmark */
+.logo-wordmark, .brand-wordmark {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Fluid Typography Scales */
+.text-hero {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.6rem, 5vw + 1rem, 4.4rem);
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
+
+.text-section-head {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.9rem, 3vw + 0.5rem, 2.6rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  font-optical-sizing: auto;
+}
+
+.text-card-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.08rem, 1.2vw + 0.5rem, 1.5rem);
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+}
+
+/* UI Elements — Inter 500 */
+nav a, nav button, button:not(.font-serif), label, .ui-label, .table-hours {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Solid panel utilities (glass blur removed for crisp, solid UI) */
+.glass-panel {
+  background: var(--card-bg, #221C19);
+  border: 1px solid var(--glass-border, #3D2E24);
+}
+
+.glass-pill {
+  background: var(--card-bg, #221C19);
+  border: 1px solid var(--border-light, #3D2E24);
+}
+
+.glass-dark {
+  background: #1A1718;
+  border: 1px solid #4A3B32;
+}
+
+/* Hero video gradient fade mask */
+.hero-video-mask {
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
+}
+
+/* =========================================================================
+   STRICT GLOBAL BACKGROUND VIDEO CONTROLS SUPPRESSION
+   Completely removes any native iOS/Safari/Chrome/Android play-pause overlays
+   ========================================================================= */
+video {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-overlay-enclosure,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-toggle-closed-captions-button,
+video::-webkit-media-controls-volume-slider {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* --- Dark Mode Semantic Classes --- */
+.dark body,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #FFFFFF;
+}
+
+.dark p,
+.dark label {
+  color: #F2EDE2;
+}
+
+.dark .text-espresso,
+.dark .text-ink {
+  color: #FFFFFF;
+}
+
+.dark .text-taupe,
+.dark .text-ink-soft {
+  color: #C4BFB2;
+}
+
+.dark .text-taupe-light {
+  color: #A8A396;
+}
+
+.dark .bg-oat,
+.dark .bg-cream {
+  background-color: #1A1A14;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #2F2F26;
+  color: #FFFFFF;
+  border-color: #3D3D30;
+}
+
+.dark input::placeholder {
+  color: #8D897A;
+}
+
+@keyframes cartBouncePop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.22) rotate(-4deg);
+  }
+  60% {
+    transform: scale(0.94) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.cart-bounce-pop {
+  animation: cartBouncePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+

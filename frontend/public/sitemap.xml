@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage & Menu -->
+  <url>
+    <loc>https://larochecafe.in/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://larochecafe.in/logo.png</image:loc>
+      <image:title>La Roche Cafe Artisanal Logo</image:title>
+      <image:caption>Artisanal Cafe preorder and express counter pickup in Chembur, Mumbai</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://larochecafe.in/laroche-menu-board.jpg</image:loc>
+      <image:title>La Roche Cafe Menu Board</image:title>
+      <image:caption>Sourdough toasties, artisan coffees, shakes and quick bites</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Policies -->
+  <url>
+    <loc>https://larochecafe.in/privacy-policy</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://larochecafe.in/terms-and-conditions</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+</urlset>

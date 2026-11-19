@@ -1,0 +1,24 @@
+# Google & Web Crawler Directives for La Roche Cafe
+User-agent: *
+Allow: /
+Allow: /menu
+Allow: /privacy-policy
+Allow: /terms-and-conditions
+Allow: /assets/
+Allow: /menu-items/
+
+# Disallow staff portals, customer session data & transactional checkouts
+Disallow: /kitchen
+Disallow: /kitchen/*
+Disallow: /cms
+Disallow: /cms/*
+Disallow: /orders
+Disallow: /orders/*
+Disallow: /checkout
+Disallow: /checkout/*
+Disallow: /cart
+Disallow: /api/
+Disallow: /api/*
+
+# XML Sitemap
+Sitemap: https://larochecafe.in/sitemap.xml
