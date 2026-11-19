@@ -1,12 +1,60 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Volume2, VolumeX, Sparkles, Coffee } from 'lucide-react';
+import { 
+  ArrowRight, 
+  Volume2, 
+  VolumeX, 
+  Sparkles, 
+  Coffee, 
+  Clock, 
+  QrCode, 
+  BellRing, 
+  Smartphone,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import './IntroVideo.css';
+
+const FEATURES = [
+  {
+    id: 'skip-the-line',
+    badge: 'Express Ordering',
+    icon: Clock,
+    title: 'Skip the Long Queue',
+    highlight: 'Pre-order in seconds',
+    description: 'Browse artisan cafe items, customize with toppings & addons, and place your order directly from your smartphone.',
+  },
+  {
+    id: 'live-tracking',
+    badge: 'Live State Machine',
+    icon: BellRing,
+    title: 'Real-Time Kitchen Updates',
+    highlight: 'Instant order notifications',
+    description: 'Watch your order move smoothly from Paid to Preparing and Ready to Pickup with instant live alerts.',
+  },
+  {
+    id: 'qr-pickup',
+    badge: 'Zero Waiting',
+    icon: QrCode,
+    title: 'Touchless QR Pickup Pass',
+    highlight: 'Flash and collect',
+    description: 'Receive your unique digital QR order pass when your food is ready. Simply present it at the counter and pick up fresh.',
+  },
+  {
+    id: 'campus-bistro',
+    badge: 'Crafted with Passion',
+    icon: Coffee,
+    title: 'Fresh Brews & Artisan Bites',
+    highlight: 'Best food experience',
+    description: 'From signature hot lattes & cold beverages to artisanal pastas, pizzas, and waffle desserts made fresh to order.',
+  }
+];
 
 const IntroVideo = ({ onFinish }) => {
   const [fading, setFading] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [videoProgress, setVideoProgress] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [autoPlaySlides, setAutoPlaySlides] = useState(true);
   const videoRef = useRef(null);
 
   const handleFinish = () => {
@@ -24,8 +72,27 @@ const IntroVideo = ({ onFinish }) => {
     }
   };
 
+  const nextSlide = (e) => {
+    if (e) e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % FEATURES.length);
+  };
+
+  const prevSlide = (e) => {
+    if (e) e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + FEATURES.length) % FEATURES.length);
+  };
+
+  // Carousel timer to guide customer through core features
   useEffect(() => {
-    // Explicitly enforce muted DOM property before playback to guarantee autoplay across iOS/Chrome
+    if (!autoPlaySlides) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % FEATURES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [autoPlaySlides]);
+
+  // Handle Autoplay & gestures
+  useEffect(() => {
     if (videoRef.current) {
       videoRef.current.defaultMuted = true;
       videoRef.current.muted = true;
@@ -37,11 +104,8 @@ const IntroVideo = ({ onFinish }) => {
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
         playPromise
-          .then(() => {
-            setIsVideoReady(true);
-          })
+          .then(() => setIsVideoReady(true))
           .catch(() => {
-            // Kickstart on first interaction if autoplay policy blocks
             const handleFirstGesture = () => {
               if (videoRef.current) {
                 videoRef.current.defaultMuted = true;
@@ -55,61 +119,58 @@ const IntroVideo = ({ onFinish }) => {
       }
     }
 
-    const videoEl = videoRef.current;
-    const handleTimeUpdate = () => {
-      if (videoEl && videoEl.duration) {
-        setVideoProgress((videoEl.currentTime / videoEl.duration) * 100);
-      }
-    };
-
-    if (videoEl) {
-      videoEl.addEventListener('timeupdate', handleTimeUpdate);
-    }
-
-    // Swipe up or mouse wheel to transition
-    const handleWheel = (e) => {
-      if (e.deltaY > 20) {
-        handleFinish();
-      }
-    };
-
-    let touchStartY = 0;
+    // Swipe up to enter or horizontal swipes between slides
+    let startX = 0;
+    let startY = 0;
     const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      setAutoPlaySlides(false);
     };
-    const handleTouchMove = (e) => {
-      const touchEndY = e.touches[0].clientY;
-      if (touchStartY - touchEndY > 30) {
+
+    const handleTouchEnd = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = startX - endX;
+      const diffY = startY - endY;
+
+      // Vertical swipe up -> Enter App
+      if (diffY > 45 && Math.abs(diffY) > Math.abs(diffX)) {
         handleFinish();
+      }
+      // Horizontal swipe -> Change slide
+      else if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: true });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      if (videoEl) {
-        videoEl.removeEventListener('timeupdate', handleTimeUpdate);
-      }
-      window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
+
+  const activeFeature = FEATURES[currentSlide];
+  const IconComponent = activeFeature.icon;
 
   return (
     <div
       className={`intro-video-overlay ${fading ? 'fade-out' : ''}`}
-      onClick={handleFinish}
       role="banner"
-      aria-label="Welcome Intro"
+      aria-label="Welcome and Feature Showcase"
     >
-      {/* Background B-Roll Video with graceful fallback */}
+      {/* Background Video */}
       <video
         ref={videoRef}
         className={`intro-video pointer-events-none select-none transition-opacity duration-700 ${
-          isVideoReady ? 'opacity-100' : 'opacity-20'
+          isVideoReady ? 'opacity-100' : 'opacity-25'
         }`}
         src="/intro.mp4"
         preload="auto"
@@ -117,26 +178,23 @@ const IntroVideo = ({ onFinish }) => {
         muted
         loop
         playsInline
-        onPlaying={() => setIsVideoReady(true)}
-        onCanPlay={() => setIsVideoReady(true)}
         webkit-playsinline="true"
         x5-playsinline="true"
         disablePictureInPicture
         disableRemotePlayback
         tabIndex={-1}
         controls={false}
-        controlsList="nodownload nofullscreen noremoteplayback"
       />
 
-      {/* Cinematic Multi-layered Backdrop Vignette */}
+      {/* Cinematic Overlays */}
       <div className="intro-backdrop-vignette" />
       <div className="intro-light-glow" />
 
-      {/* Top Bar: Subtle badge & Sound / Skip Controls */}
+      {/* Top Bar: Brand Pill + Controls */}
       <header className="intro-top-bar">
         <div className="intro-pill-badge">
-          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-          <span>Artisan Bistro & Coffee</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <span>La Roche Online Preorder</span>
         </div>
 
         <div className="intro-top-actions">
@@ -153,70 +211,114 @@ const IntroVideo = ({ onFinish }) => {
           <button
             type="button"
             className="intro-skip-pill-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleFinish();
-            }}
+            onClick={handleFinish}
           >
             Skip Intro
           </button>
         </div>
       </header>
 
-      {/* Centered Brand Presentation */}
-      <main className="intro-center-content">
-        <div className="intro-badge-tagline">
-          <Coffee className="w-4 h-4 text-amber-400" />
-          <span>Welcome to</span>
-        </div>
-
-        {/* Brand Logo with ambient glow */}
-        <div className="intro-logo-container">
+      {/* Center Interactive Feature Cards */}
+      <main className="intro-center-showcase">
+        {/* Compact Brand Header */}
+        <div className="intro-brand-header">
           <img
             src="/logo.png"
             alt="La Roche Cafe"
-            className="intro-brand-logo"
-            loading="eager"
+            className="intro-brand-logo-small"
           />
         </div>
 
-        {/* Professional Typography Subtitle */}
-        <div className="intro-text-block">
-          <h1 className="intro-title">LA ROCHE CAFE</h1>
-          <p className="intro-tagline">
-            Handcrafted flavors, fresh brews, and unforgettable moments.
-          </p>
+        {/* Feature Carousel Card */}
+        <div 
+          className="intro-feature-card"
+          onMouseEnter={() => setAutoPlaySlides(false)}
+          onMouseLeave={() => setAutoPlaySlides(true)}
+        >
+          <div className="intro-card-header">
+            <span className="intro-card-badge">
+              <IconComponent className="w-3.5 h-3.5 text-amber-300" />
+              <span>{activeFeature.badge}</span>
+            </span>
+            <div className="intro-card-dots">
+              {FEATURES.map((feat, idx) => (
+                <button
+                  key={feat.id}
+                  type="button"
+                  onClick={() => {
+                    setCurrentSlide(idx);
+                    setAutoPlaySlides(false);
+                  }}
+                  className={`intro-dot ${idx === currentSlide ? 'active' : ''}`}
+                  aria-label={`Go to feature ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="intro-card-content">
+            <h2 className="intro-card-title">{activeFeature.title}</h2>
+            <p className="intro-card-highlight">{activeFeature.highlight}</p>
+            <p className="intro-card-desc">{activeFeature.description}</p>
+          </div>
+
+          {/* Feature Quick Pills */}
+          <div className="intro-feature-chips">
+            <div className={`intro-chip ${currentSlide === 0 ? 'selected' : ''}`} onClick={() => setCurrentSlide(0)}>
+              <Clock className="w-3 h-3" />
+              <span>Pre-order</span>
+            </div>
+            <div className={`intro-chip ${currentSlide === 1 ? 'selected' : ''}`} onClick={() => setCurrentSlide(1)}>
+              <BellRing className="w-3 h-3" />
+              <span>Live Alert</span>
+            </div>
+            <div className={`intro-chip ${currentSlide === 2 ? 'selected' : ''}`} onClick={() => setCurrentSlide(2)}>
+              <QrCode className="w-3 h-3" />
+              <span>QR Pass</span>
+            </div>
+            <div className={`intro-chip ${currentSlide === 3 ? 'selected' : ''}`} onClick={() => setCurrentSlide(3)}>
+              <Coffee className="w-3 h-3" />
+              <span>Artisan Menu</span>
+            </div>
+          </div>
+
+          {/* Navigation Arrows for desktop/click */}
+          <button
+            type="button"
+            className="intro-nav-arrow prev"
+            onClick={prevSlide}
+            aria-label="Previous feature"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            className="intro-nav-arrow next"
+            onClick={nextSlide}
+            aria-label="Next feature"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
       </main>
 
-      {/* Mobile-First Interactive Bottom Dock */}
+      {/* Bottom Action Dock */}
       <footer className="intro-bottom-action">
         <button
           type="button"
           className="intro-cta-button group"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleFinish();
-          }}
-          aria-label="Explore Menu"
+          onClick={handleFinish}
+          aria-label="Enter Cafe & Order"
         >
-          <span className="intro-cta-text">Explore Menu</span>
+          <span className="intro-cta-text">Enter & Order Now</span>
           <span className="intro-cta-icon-wrapper">
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </span>
         </button>
 
         <p className="intro-hint-text">
-          <span>Tap anywhere or swipe up to enter</span>
+          <span>Swipe left / right to view features • Tap button to start</span>
         </p>
-
-        {/* Subtle Video Progress Bar */}
-        <div className="intro-progress-bar-track">
-          <div
-            className="intro-progress-bar-fill"
-            style={{ width: `${Math.min(100, Math.max(0, videoProgress))}%` }}
-          />
-        </div>
       </footer>
     </div>
   );
