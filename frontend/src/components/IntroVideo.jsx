@@ -10,16 +10,27 @@ import {
   CreditCard, 
   CheckCircle2, 
   Store, 
-  ArrowRight,
-  Flame,
-  LayoutGrid,
-  ShoppingBag,
-  BellRing,
-  QrCode,
-  ShieldCheck,
-  Smartphone
+  ArrowRight, 
+  Flame, 
+  LayoutGrid, 
+  ShoppingBag, 
+  ShieldCheck, 
+  LogIn, 
+  UserPlus, 
+  ChevronRight, 
+  Clock, 
+  SlidersHorizontal 
 } from 'lucide-react';
 import './IntroVideo.css';
+
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z" />
+    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.94 0 12s.45 3.84 1.25 5.42l4.03-3.15z" />
+    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+  </svg>
+);
 
 const playAudioBeep = (freq = 600, duration = 0.08, type = 'sine', gainVal = 0.08) => {
   try {
@@ -43,16 +54,18 @@ const playAudioBeep = (freq = 600, duration = 0.08, type = 'sine', gainVal = 0.0
 };
 
 const TOUR_ZONES = [
-  { id: 1, label: 'EXPLORE & MENU', icon: LayoutGrid, kicker: 'Campus Bistro App Tour', title: 'Interactive menu, search & live category rails' },
-  { id: 2, label: 'CUSTOMIZE & CART', icon: ShoppingBag, kicker: 'Zero-Queue Preorder', title: 'Toppings, addons & 1-tap cart review' },
-  { id: 3, label: 'INSTANT PAY & KDS', icon: CreditCard, kicker: 'Direct Kitchen Forwarding', title: 'Razorpay UPI & real-time kitchen status' },
-  { id: 4, label: 'COUNTER TOKEN & QR', icon: Store, kicker: 'Skip The Pickup Line', title: 'Show your token at the cafe counter & collect hot' }
+  { id: 1, label: 'EXPLORE & MENU', icon: LayoutGrid, kicker: '01 / EXPLORE BISTRO', title: 'Interactive menu, search & live category rails' },
+  { id: 2, label: 'GOOGLE OAUTH SIGN UP', icon: UserPlus, kicker: '02 / FAST ONBOARDING', title: '1-tap Google sign up & campus profile sync' },
+  { id: 3, label: 'CUSTOMIZE & CART', icon: ShoppingBag, kicker: '03 / PRE-ORDER CUSTOMIZATION', title: 'Toppings, addons & 1-tap cart review' },
+  { id: 4, label: 'INSTANT PAY & KDS', icon: CreditCard, kicker: '04 / REAL-TIME KITCHEN QUEUE', title: 'Razorpay UPI & live socket state transitions' },
+  { id: 5, label: 'COUNTER TOKEN & QR', icon: Store, kicker: '05 / ZERO-QUEUE PICKUP', title: 'Show your token at the cafe counter & collect hot' }
 ];
 
 const IntroVideo = ({ onFinish }) => {
   const [fading, setFading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentAct, setCurrentAct] = useState(1);
+  const [googleStepDone, setGoogleStepDone] = useState(false);
   
   const containerRef = useRef(null);
   const cameraRigRef = useRef(null);
@@ -83,8 +96,9 @@ const IntroVideo = ({ onFinish }) => {
   const jumpToAct = (actNum) => {
     setCurrentAct(actNum);
     if (!isMuted) {
-      if (actNum === 4) playAudioBeep(987.77, 0.35, 'triangle', 0.18);
-      else if (actNum === 3) playAudioBeep(784, 0.1, 'sine', 0.1);
+      if (actNum === 5) playAudioBeep(987.77, 0.35, 'triangle', 0.18);
+      else if (actNum === 4) playAudioBeep(784, 0.1, 'sine', 0.1);
+      else if (actNum === 2) playAudioBeep(640, 0.08, 'sine', 0.1);
       else playAudioBeep(520, 0.06, 'sine', 0.08);
     }
   };
@@ -102,63 +116,74 @@ const IntroVideo = ({ onFinish }) => {
     gsap.set(camera, { transformPerspective: 1200, transformStyle: "preserve-3d" });
     gsap.set(card, { transformStyle: "preserve-3d", rotationY: 0, rotationX: 0, z: 0 });
 
+    // Extended 24-second timeline with 5 distinct comprehensive acts
     const tl = gsap.timeline({
       repeat: -1,
       defaults: { ease: "power3.inOut" }
     });
     timelineRef.current = tl;
 
-    // ACT 1 (0.0s - 3.8s): THE BROWSE TOUR (Deep 3D push-through, search & Bento categories)
+    // ACT 1 (0.0s - 4.8s): THE BROWSE TOUR (Deep 3D push-through, search & Bento categories)
     tl.call(() => {
       jumpToAct(1);
     }, null, 0.1)
       .fromTo(camera, 
-        { z: -160, rotationX: 5, rotationY: -6 }, 
-        { z: 0, rotationX: 0, rotationY: 0, duration: 3.6, ease: "power2.out" }, 
+        { z: -170, rotationX: 5, rotationY: -6 }, 
+        { z: 0, rotationX: 0, rotationY: 0, duration: 4.6, ease: "power2.out" }, 
         0
       )
       .fromTo(orb,
         { x: -160, y: -80, scale: 0.9 },
-        { x: 160, y: 50, scale: 1.3, duration: 3.6, ease: "sine.inOut" },
+        { x: 160, y: 50, scale: 1.3, duration: 4.6, ease: "sine.inOut" },
         0
       );
 
-    // ACT 2 (3.8s - 7.6s): DOLLY IN & PRE-ORDER CART WITH ADDONS
+    // ACT 2 (4.8s - 9.6s): GOOGLE SIGN UP / OAUTH INTEGRATION
     tl.call(() => {
       jumpToAct(2);
-    }, null, 3.8)
-      .to(camera, { z: 80, rotationY: 6, rotationX: -3, duration: 3.6, ease: "power2.inOut" }, 3.8)
-      .to(card, { rotationY: -5, rotationX: 2, duration: 3.6, ease: "power2.inOut" }, 3.8)
-      .fromTo(".bang-tour-cart-preview", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 4.0);
+      setGoogleStepDone(false);
+      setTimeout(() => setGoogleStepDone(true), 1400);
+    }, null, 4.8)
+      .to(camera, { z: 70, rotationY: -7, rotationX: 3, duration: 4.6, ease: "power2.inOut" }, 4.8)
+      .to(card, { rotationY: 8, rotationX: -2, duration: 4.6, ease: "power2.inOut" }, 4.8)
+      .fromTo(".bang-tour-auth-preview", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, 5.0);
 
-    // ACT 3 (7.6s - 11.2s): INSTANT RAZORPAY UPI & LIVE KITCHEN PIPELINE
+    // ACT 3 (9.6s - 14.4s): DOLLY IN & PRE-ORDER CART WITH CUSTOM ADDONS
     tl.call(() => {
       jumpToAct(3);
-    }, null, 7.6)
-      .to(camera, { z: 40, rotationY: -8, rotationX: 4, duration: 3.4, ease: "power3.inOut" }, 7.6)
-      .to(card, { rotationY: 7, rotationX: -2, duration: 3.4, ease: "power3.inOut" }, 7.6)
-      .fromTo(beam, { top: "-10%", opacity: 0 }, { top: "115%", opacity: 0.85, duration: 1.2, ease: "power1.inOut" }, 7.8)
-      .fromTo(".bang-tour-payment-preview", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 8.0);
+    }, null, 9.6)
+      .to(camera, { z: 100, rotationY: 7, rotationX: -4, duration: 4.6, ease: "power2.inOut" }, 9.6)
+      .to(card, { rotationY: -7, rotationX: 3, duration: 4.6, ease: "power2.inOut" }, 9.6)
+      .fromTo(".bang-tour-cart-preview", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, 9.8);
 
-    // ACT 4 (11.2s - 16.0s): THE CLIMAX — STAMP TOKEN AT REAL CAFE COUNTER
+    // ACT 4 (14.4s - 19.2s): INSTANT RAZORPAY UPI & LIVE KITCHEN PIPELINE
     tl.call(() => {
       jumpToAct(4);
-    }, null, 11.2)
-      .to(camera, { z: -10, rotationY: 0, rotationX: 0, duration: 2.2, ease: "elastic.out(1, 0.85)" }, 11.2)
-      .to(card, { rotationY: 0, rotationX: 0, z: 0, duration: 2.2, ease: "elastic.out(1, 0.85)" }, 11.2)
+    }, null, 14.4)
+      .to(camera, { z: 45, rotationY: -9, rotationX: 4, duration: 4.6, ease: "power3.inOut" }, 14.4)
+      .to(card, { rotationY: 9, rotationX: -2, duration: 4.6, ease: "power3.inOut" }, 14.4)
+      .fromTo(beam, { top: "-10%", opacity: 0 }, { top: "115%", opacity: 0.85, duration: 1.5, ease: "power1.inOut" }, 14.6)
+      .fromTo(".bang-tour-payment-preview", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 14.8);
+
+    // ACT 5 (19.2s - 25.0s): THE CLIMAX — STAMP TOKEN AT REAL CAFE COUNTER
+    tl.call(() => {
+      jumpToAct(5);
+    }, null, 19.2)
+      .to(camera, { z: -10, rotationY: 0, rotationX: 0, duration: 2.8, ease: "elastic.out(1, 0.85)" }, 19.2)
+      .to(card, { rotationY: 0, rotationX: 0, z: 0, duration: 2.8, ease: "elastic.out(1, 0.85)" }, 19.2)
       .fromTo(stamp, 
         { scale: 2.5, opacity: 0, rotation: -12, filter: "blur(8px)" }, 
-        { scale: 1, opacity: 1, rotation: 0, filter: "blur(0px)", duration: 0.55, ease: "back.out(2)" }, 
-        11.5
+        { scale: 1, opacity: 1, rotation: 0, filter: "blur(0px)", duration: 0.65, ease: "back.out(2)" }, 
+        19.5
       )
       .fromTo(".bang-tour-token-preview", 
         { opacity: 0, scale: 0.9 }, 
-        { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" }, 
-        11.7
+        { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" }, 
+        19.7
       );
 
     // Smooth reset
-    tl.to(camera, { opacity: 0.95, duration: 0.6 }, 15.4);
+    tl.to(camera, { opacity: 0.95, duration: 0.6 }, 24.4);
 
     // Hidden key controls (Space = pause, R = restart)
     const handleKeyDown = (e) => {
@@ -205,7 +230,7 @@ const IntroVideo = ({ onFinish }) => {
       <header className="bang-top-hud">
         <div className="bang-brand-pill">
           <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-          <span>La Roche • Developer Guided Tour</span>
+          <span>La Roche • Interactive Tour</span>
         </div>
 
         <div className="bang-hud-right">
@@ -268,13 +293,11 @@ const IntroVideo = ({ onFinish }) => {
             {/* ACT 1: EXPLORE & MENU DISCOVERY */}
             {currentAct === 1 && (
               <div className="bang-act-screen">
-                {/* Search Bar Simulation */}
                 <div className="bang-search-interactive">
                   <Search className="w-4 h-4 text-amber-400" />
-                  <span className="bang-search-text">Search artisan cappuccino, peri peri fries, waffles, pizza...</span>
+                  <span className="bang-search-text">Search cappuccino, peri peri fries, waffles, pizza...</span>
                 </div>
 
-                {/* Categories Bento Grid */}
                 <div className="bang-bento-grid-preview">
                   <div className="bang-bento-tile highlight">
                     <Coffee className="w-5 h-5 text-amber-300" />
@@ -306,7 +329,6 @@ const IntroVideo = ({ onFinish }) => {
                   </div>
                 </div>
 
-                {/* Bottom App Nav Preview */}
                 <div className="bang-mock-bottom-nav">
                   <span className="nav-item active">☕ Menu</span>
                   <span className="nav-item">🗂️ Categories</span>
@@ -316,8 +338,48 @@ const IntroVideo = ({ onFinish }) => {
               </div>
             )}
 
-            {/* ACT 2: CUSTOMIZE & PRE-ORDER CART */}
+            {/* ACT 2: GOOGLE SIGN UP & OAUTH */}
             {currentAct === 2 && (
+              <div className="bang-act-screen bang-tour-auth-preview">
+                <div className="bang-auth-card-mock">
+                  <div className="bang-auth-header">
+                    <div className="bang-oauth-pill">
+                      <GoogleIcon />
+                      <span>Google OAuth 2.0 Integration</span>
+                    </div>
+                    <h4>1-Tap Quick Student Sign Up</h4>
+                    <p>Instant authentication with your college or personal Google account</p>
+                  </div>
+
+                  {/* Interactive Google Sign Up Button */}
+                  <div className="bang-google-oauth-btn-mock">
+                    <GoogleIcon />
+                    <span>Continue with Google</span>
+                    <span className="oauth-verified-tag">Instant Access</span>
+                  </div>
+
+                  {/* Or divider */}
+                  <div className="bang-auth-divider">
+                    <span>or sign in with campus email / mobile OTP</span>
+                  </div>
+
+                  {/* Student Verification Badge */}
+                  <div className="bang-auth-perk-row">
+                    <div className="auth-perk">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{googleStepDone ? 'Authenticated as student@campus.edu' : 'Zero manual password hassle'}</span>
+                    </div>
+                    <div className="auth-perk">
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      <span>End-to-End JWT Session Security</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ACT 3: CUSTOMIZE & PRE-ORDER CART */}
+            {currentAct === 3 && (
               <div className="bang-act-screen bang-tour-cart-preview">
                 <div className="bang-cart-expanded-card">
                   <div className="bang-cart-top">
@@ -331,14 +393,12 @@ const IntroVideo = ({ onFinish }) => {
                     <span className="bang-cart-price">₹170</span>
                   </div>
 
-                  {/* Addons Selection in Cart */}
                   <div className="bang-addons-selector">
                     <span className="bang-addon-chip selected">✓ Extra Espresso Shot (+₹30)</span>
                     <span className="bang-addon-chip selected">✓ Hazelnut Drizzle</span>
                     <span className="bang-addon-chip">Less Sugar</span>
                   </div>
 
-                  {/* Checkout summary */}
                   <div className="bang-cart-calc-row">
                     <span>Subtotal + Taxes</span>
                     <strong>Total: ₹170.00</strong>
@@ -352,8 +412,8 @@ const IntroVideo = ({ onFinish }) => {
               </div>
             )}
 
-            {/* ACT 3: INSTANT PAY & KITCHEN KDS PIPELINE */}
-            {currentAct === 3 && (
+            {/* ACT 4: INSTANT PAY & KITCHEN KDS PIPELINE */}
+            {currentAct === 4 && (
               <div className="bang-act-screen bang-tour-payment-preview">
                 <div className="bang-payment-card-layout">
                   <div className="bang-pay-header">
@@ -364,7 +424,6 @@ const IntroVideo = ({ onFinish }) => {
                     </div>
                   </div>
 
-                  {/* Live Kitchen KDS pipeline state tracker */}
                   <div className="bang-kds-timeline">
                     <div className="kds-step completed">
                       <span className="dot">✓</span>
@@ -388,8 +447,8 @@ const IntroVideo = ({ onFinish }) => {
               </div>
             )}
 
-            {/* ACT 4: THE CLIMAX — REAL COUNTER TOKEN & QR PICKUP */}
-            {currentAct === 4 && (
+            {/* ACT 5: THE CLIMAX — REAL COUNTER TOKEN & QR PICKUP */}
+            {currentAct === 5 && (
               <div className="bang-act-screen bang-tour-token-preview">
                 <div className="bang-counter-hero-card">
                   
@@ -403,11 +462,10 @@ const IntroVideo = ({ onFinish }) => {
                     <h1 className="token-digit">LR-842</h1>
                   </div>
 
-                  {/* Scannable QR Pass */}
                   <div className="bang-qr-plate">
                     <QRCodeSVG
                       value="https://laroche-intro.vercel.app/orders/LR-842"
-                      size={130}
+                      size={120}
                       level="H"
                       includeMargin={true}
                       fgColor="#120e0b"
@@ -425,7 +483,7 @@ const IntroVideo = ({ onFinish }) => {
 
           </div>
 
-          {/* Minimal 2-Level Kinetic Captions (Strict Anti-PPT Rules) */}
+          {/* Minimal 2-Level Kinetic Captions */}
           <div className="bang-kinetic-captions">
             <p className="bang-kicker">{activeZone.kicker}</p>
             <h2 className="bang-title">{activeZone.title}</h2>

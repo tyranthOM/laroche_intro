@@ -171,7 +171,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 680px; /* Covers major portion of screen */
+  max-width: 680px;
 }
 
 /* Expanded Living Canvas Card */
@@ -323,7 +323,6 @@
   border-radius: 16px;
   padding: 12px;
   text-align: left;
-  transition: border-color 0.2s ease;
 }
 
 .bang-bento-tile strong {
@@ -360,7 +359,100 @@
   font-weight: 700;
 }
 
-/* ACT 2: Cart & Addons */
+/* ACT 2: GOOGLE OAUTH CARD */
+.bang-auth-card-mock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 18px 20px;
+  text-align: left;
+}
+
+.bang-auth-header h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 6px 0 2px 0;
+}
+
+.bang-auth-header p {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+.bang-oauth-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #60a5fa;
+  background: rgba(66, 133, 244, 0.15);
+  border: 1px solid rgba(66, 133, 244, 0.35);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
+}
+
+.bang-google-oauth-btn-mock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  color: #1f2937;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: transform 0.2s ease;
+}
+
+.bang-google-oauth-btn-mock:hover {
+  transform: translateY(-1px);
+}
+
+.oauth-verified-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.bang-auth-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+.bang-auth-perk-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-perk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ACT 3: Cart & Addons */
 .bang-cart-expanded-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -448,7 +540,7 @@
   font-weight: 600;
 }
 
-/* ACT 3: Payment & KDS */
+/* ACT 4: Payment & KDS */
 .bang-payment-card-layout {
   display: flex;
   flex-direction: column;
@@ -536,7 +628,7 @@
   font-weight: 600;
 }
 
-/* ACT 4: Counter Token & Climax */
+/* ACT 5: Counter Token & Climax */
 .bang-counter-hero-card {
   display: flex;
   flex-direction: column;
@@ -562,7 +654,7 @@
 }
 
 .bang-token-display {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .token-label {
@@ -690,7 +782,7 @@
 .bang-timeline-rail {
   display: flex;
   gap: 8px;
-  width: 140px;
+  width: 175px;
 }
 
 .bang-rail-segment {
