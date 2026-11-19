@@ -10,12 +10,18 @@ import {
   CreditCard, 
   CheckCircle2, 
   Store, 
-  ArrowRight
+  ArrowRight,
+  Flame,
+  LayoutGrid,
+  ShoppingBag,
+  BellRing,
+  QrCode,
+  ShieldCheck,
+  Smartphone
 } from 'lucide-react';
 import './IntroVideo.css';
 
-// Crisp mechanical audio synthesis (counter bell & micro-clicks)
-const playAudioBeep = (freq = 600, duration = 0.08, type = 'sine', gainVal = 0.1) => {
+const playAudioBeep = (freq = 600, duration = 0.08, type = 'sine', gainVal = 0.08) => {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
@@ -23,18 +29,25 @@ const playAudioBeep = (freq = 600, duration = 0.08, type = 'sine', gainVal = 0.1
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
     osc.type = type;
     osc.frequency.setValueAtTime(freq, now);
     gain.gain.setValueAtTime(gainVal, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
     osc.start(now);
     osc.stop(now + duration);
   } catch (e) {
     // audio policy safe
   }
 };
+
+const TOUR_ZONES = [
+  { id: 1, label: 'EXPLORE & MENU', icon: LayoutGrid, kicker: 'Campus Bistro App Tour', title: 'Interactive menu, search & live category rails' },
+  { id: 2, label: 'CUSTOMIZE & CART', icon: ShoppingBag, kicker: 'Zero-Queue Preorder', title: 'Toppings, addons & 1-tap cart review' },
+  { id: 3, label: 'INSTANT PAY & KDS', icon: CreditCard, kicker: 'Direct Kitchen Forwarding', title: 'Razorpay UPI & real-time kitchen status' },
+  { id: 4, label: 'COUNTER TOKEN & QR', icon: Store, kicker: 'Skip The Pickup Line', title: 'Show your token at the cafe counter & collect hot' }
+];
 
 const IntroVideo = ({ onFinish }) => {
   const [fading, setFading] = useState(false);
@@ -45,11 +58,7 @@ const IntroVideo = ({ onFinish }) => {
   const cameraRigRef = useRef(null);
   const videoRef = useRef(null);
   const lightOrbRef = useRef(null);
-
-  // continuous 3D world anchors
   const cardRigRef = useRef(null);
-  const textKickerRef = useRef(null);
-  const textTitleRef = useRef(null);
   const scanBeamRef = useRef(null);
   const stampRef = useRef(null);
   const timelineRef = useRef(null);
@@ -71,11 +80,18 @@ const IntroVideo = ({ onFinish }) => {
     }
   };
 
+  const jumpToAct = (actNum) => {
+    setCurrentAct(actNum);
+    if (!isMuted) {
+      if (actNum === 4) playAudioBeep(987.77, 0.35, 'triangle', 0.18);
+      else if (actNum === 3) playAudioBeep(784, 0.1, 'sine', 0.1);
+      else playAudioBeep(520, 0.06, 'sine', 0.08);
+    }
+  };
+
   useEffect(() => {
     const camera = cameraRigRef.current;
     const card = cardRigRef.current;
-    const kicker = textKickerRef.current;
-    const title = textTitleRef.current;
     const beam = scanBeamRef.current;
     const stamp = stampRef.current;
     const orb = lightOrbRef.current;
@@ -92,70 +108,59 @@ const IntroVideo = ({ onFinish }) => {
     });
     timelineRef.current = tl;
 
-    // ACT 1 (0.0s - 3.2s): THE BROWSE HOOK (Camera floats in with gentle cinematic tilt)
+    // ACT 1 (0.0s - 3.8s): THE BROWSE TOUR (Deep 3D push-through, search & Bento categories)
     tl.call(() => {
-      setCurrentAct(1);
-      if (!isMuted) playAudioBeep(520, 0.08, 'sine', 0.08);
+      jumpToAct(1);
     }, null, 0.1)
       .fromTo(camera, 
-        { z: -180, rotationX: 8, rotationY: -12 }, 
-        { z: 0, rotationX: 0, rotationY: 0, duration: 3.2, ease: "power2.out" }, 
+        { z: -160, rotationX: 5, rotationY: -6 }, 
+        { z: 0, rotationX: 0, rotationY: 0, duration: 3.6, ease: "power2.out" }, 
         0
       )
       .fromTo(orb,
-        { x: -120, y: -60, scale: 0.8 },
-        { x: 140, y: 40, scale: 1.2, duration: 3.2, ease: "sine.inOut" },
+        { x: -160, y: -80, scale: 0.9 },
+        { x: 160, y: 50, scale: 1.3, duration: 3.6, ease: "sine.inOut" },
         0
-      )
-      .fromTo(kicker, { opacity: 0, y: 15, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8 }, 0.3)
-      .fromTo(title, { opacity: 0, y: 20, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 1 }, 0.5);
+      );
 
-    // ACT 2 (3.2s - 6.6s): DOLLY IN & PRE-ORDER CART (Continuous 3D camera travel)
+    // ACT 2 (3.8s - 7.6s): DOLLY IN & PRE-ORDER CART WITH ADDONS
     tl.call(() => {
-      setCurrentAct(2);
-      if (!isMuted) playAudioBeep(680, 0.06, 'triangle', 0.1);
-    }, null, 3.2)
-      .to(kicker, { opacity: 0, y: -10, filter: "blur(4px)", duration: 0.4 }, 3.2)
-      .to(title, { opacity: 0, y: -15, filter: "blur(6px)", duration: 0.5 }, 3.2)
-      .to(camera, { z: 120, rotationY: 10, rotationX: -4, duration: 3.4, ease: "power2.inOut" }, 3.2)
-      .to(card, { rotationY: -8, rotationX: 4, duration: 3.4, ease: "power2.inOut" }, 3.2)
-      .fromTo(".act-cart-preview", { opacity: 0, scale: 0.9, z: -40 }, { opacity: 1, scale: 1, z: 20, duration: 0.8, ease: "back.out(1.5)" }, 3.5);
+      jumpToAct(2);
+    }, null, 3.8)
+      .to(camera, { z: 80, rotationY: 6, rotationX: -3, duration: 3.6, ease: "power2.inOut" }, 3.8)
+      .to(card, { rotationY: -5, rotationX: 2, duration: 3.6, ease: "power2.inOut" }, 3.8)
+      .fromTo(".bang-tour-cart-preview", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 4.0);
 
-    // ACT 3 (6.6s - 10.0s): WHIP PAN TO INSTANT CHECKOUT (Beam slice across 3D canvas)
+    // ACT 3 (7.6s - 11.2s): INSTANT RAZORPAY UPI & LIVE KITCHEN PIPELINE
     tl.call(() => {
-      setCurrentAct(3);
-      if (!isMuted) playAudioBeep(880, 0.12, 'sine', 0.12);
-    }, null, 6.6)
-      .to(camera, { z: 50, rotationY: -14, rotationX: 6, duration: 3.4, ease: "power3.inOut" }, 6.6)
-      .to(card, { rotationY: 12, rotationX: -3, duration: 3.4, ease: "power3.inOut" }, 6.6)
-      .fromTo(beam, { top: "-10%", opacity: 0 }, { top: "110%", opacity: 0.8, duration: 1.4, ease: "power1.inOut" }, 6.8)
-      .fromTo(".act-payment-preview", { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 7.0);
+      jumpToAct(3);
+    }, null, 7.6)
+      .to(camera, { z: 40, rotationY: -8, rotationX: 4, duration: 3.4, ease: "power3.inOut" }, 7.6)
+      .to(card, { rotationY: 7, rotationX: -2, duration: 3.4, ease: "power3.inOut" }, 7.6)
+      .fromTo(beam, { top: "-10%", opacity: 0 }, { top: "115%", opacity: 0.85, duration: 1.2, ease: "power1.inOut" }, 7.8)
+      .fromTo(".bang-tour-payment-preview", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 8.0);
 
-    // ACT 4 (10.0s - 14.5s): THE CLIMAX — STAMP TOKEN AT REAL CAFE COUNTER
+    // ACT 4 (11.2s - 16.0s): THE CLIMAX — STAMP TOKEN AT REAL CAFE COUNTER
     tl.call(() => {
-      setCurrentAct(4);
-      if (!isMuted) {
-        playAudioBeep(987.77, 0.4, 'triangle', 0.2); // Counter bell chime
-      }
-    }, null, 10.0)
-      .to(camera, { z: -30, rotationY: 0, rotationX: 0, duration: 2.5, ease: "elastic.out(1, 0.85)" }, 10.0)
-      .to(card, { rotationY: 0, rotationX: 0, z: 0, duration: 2.2, ease: "elastic.out(1, 0.85)" }, 10.0)
+      jumpToAct(4);
+    }, null, 11.2)
+      .to(camera, { z: -10, rotationY: 0, rotationX: 0, duration: 2.2, ease: "elastic.out(1, 0.85)" }, 11.2)
+      .to(card, { rotationY: 0, rotationX: 0, z: 0, duration: 2.2, ease: "elastic.out(1, 0.85)" }, 11.2)
       .fromTo(stamp, 
-        { scale: 2.8, opacity: 0, rotation: -18, filter: "blur(12px)" }, 
-        { scale: 1, opacity: 1, rotation: 0, filter: "blur(0px)", duration: 0.65, ease: "back.out(2)" }, 
-        10.4
+        { scale: 2.5, opacity: 0, rotation: -12, filter: "blur(8px)" }, 
+        { scale: 1, opacity: 1, rotation: 0, filter: "blur(0px)", duration: 0.55, ease: "back.out(2)" }, 
+        11.5
       )
-      .fromTo(".act-qr-token-stage", 
-        { opacity: 0, scale: 0.85, z: -30 }, 
-        { opacity: 1, scale: 1, z: 30, duration: 0.8, ease: "power2.out" }, 
-        10.6
-      )
-      .to(card, { y: -8, duration: 2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 11.2);
+      .fromTo(".bang-tour-token-preview", 
+        { opacity: 0, scale: 0.9 }, 
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" }, 
+        11.7
+      );
 
-    // Smooth reset transition back to Act 1
-    tl.to(camera, { opacity: 0.9, duration: 0.5 }, 14.0);
+    // Smooth reset
+    tl.to(camera, { opacity: 0.95, duration: 0.6 }, 15.4);
 
-    // Hidden Controls: Space to pause/resume, R to restart (Bang Motion spec)
+    // Hidden key controls (Space = pause, R = restart)
     const handleKeyDown = (e) => {
       if (e.code === 'Space') {
         if (tl.paused()) tl.play();
@@ -172,12 +177,14 @@ const IntroVideo = ({ onFinish }) => {
     };
   }, [isMuted]);
 
+  const activeZone = TOUR_ZONES[currentAct - 1];
+
   return (
     <div
       ref={containerRef}
       className={`bang-motion-viewport ${fading ? 'fade-out' : ''}`}
       role="banner"
-      aria-label="La Roche Cafe Cinematic Opener"
+      aria-label="La Roche Cafe Complete App Tour"
     >
       {/* Background Ambience Layer */}
       <video
@@ -198,7 +205,7 @@ const IntroVideo = ({ onFinish }) => {
       <header className="bang-top-hud">
         <div className="bang-brand-pill">
           <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-          <span>La Roche • Campus Bistro</span>
+          <span>La Roche • Developer Guided Tour</span>
         </div>
 
         <div className="bang-hud-right">
@@ -206,8 +213,8 @@ const IntroVideo = ({ onFinish }) => {
             type="button"
             className="bang-icon-btn"
             onClick={toggleSound}
-            aria-label={isMuted ? 'Unmute Sound FX' : 'Mute Sound FX'}
-            title={isMuted ? 'Muted' : 'Sound Effects Active'}
+            aria-label={isMuted ? 'Unmute Sound' : 'Mute Sound'}
+            title={isMuted ? 'Muted' : 'Sound Active'}
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-amber-300" />}
           </button>
@@ -217,7 +224,7 @@ const IntroVideo = ({ onFinish }) => {
             className="bang-skip-btn"
             onClick={handleFinish}
           >
-            Skip Intro
+            Skip Tour
           </button>
         </div>
       </header>
@@ -226,123 +233,202 @@ const IntroVideo = ({ onFinish }) => {
       <div className="bang-world-container">
         <div ref={cameraRigRef} className="bang-camera-rig">
           
-          {/* Ongoing Visual Anchor: Living 3D Canvas Card */}
-          <div ref={cardRigRef} className="bang-anchor-card">
+          {/* Main Major Screen: Full-Width Living App Canvas */}
+          <div ref={cardRigRef} className="bang-anchor-card-expanded">
             
-            {/* Laser scanning beam */}
+            {/* Scan Beam */}
             <div ref={scanBeamRef} className="bang-scan-beam" />
 
-            {/* Continuous Header on the 3D Canvas */}
-            <div className="bang-card-topbar">
-              <div className="bang-logo-wrap">
-                <img src="/logo.png" alt="La Roche" className="bang-logo-img" />
+            {/* Continuous App Frame Top Bar */}
+            <div className="bang-app-header-bar">
+              <div className="bang-app-brand">
+                <img src="/logo.png" alt="La Roche" className="bang-app-logo" />
+                <span className="bang-app-badge">CAMPUS BISTRO</span>
               </div>
-              <div className="bang-live-state-pill">
-                <span className="bang-pulse-dot" />
-                <span>
-                  {currentAct === 1 && 'ACT I : EXPLORE MENU'}
-                  {currentAct === 2 && 'ACT II : PRE-ORDER CART'}
-                  {currentAct === 3 && 'ACT III : INSTANT CHECKOUT'}
-                  {currentAct === 4 && 'CLIMAX : COUNTER TOKEN'}
-                </span>
+
+              {/* Tour Navigator Tabs */}
+              <div className="bang-tour-tabs">
+                {TOUR_ZONES.map((zone) => {
+                  const Icon = zone.icon;
+                  return (
+                    <button
+                      key={zone.id}
+                      type="button"
+                      onClick={() => jumpToAct(zone.id)}
+                      className={`bang-tour-tab ${currentAct === zone.id ? 'active' : ''}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{zone.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* ACT 1: Browse Dynamic Representation */}
+            {/* ACT 1: EXPLORE & MENU DISCOVERY */}
             {currentAct === 1 && (
-              <div className="bang-act-scene">
-                <div className="bang-search-motion-bar">
-                  <Search className="w-4 h-4 text-amber-300 animate-pulse" />
-                  <span className="bang-typing-text">Search artisan cappuccino, peri peri fries, waffles...</span>
+              <div className="bang-act-screen">
+                {/* Search Bar Simulation */}
+                <div className="bang-search-interactive">
+                  <Search className="w-4 h-4 text-amber-400" />
+                  <span className="bang-search-text">Search artisan cappuccino, peri peri fries, waffles, pizza...</span>
                 </div>
-                <div className="bang-food-row">
-                  <div className="bang-food-chip highlight">
-                    <Coffee className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Hazelnut Latte</span>
+
+                {/* Categories Bento Grid */}
+                <div className="bang-bento-grid-preview">
+                  <div className="bang-bento-tile highlight">
+                    <Coffee className="w-5 h-5 text-amber-300" />
+                    <div>
+                      <strong>Fresh Brews</strong>
+                      <p>Hot Espresso, Lattes & Cold Brew</p>
+                    </div>
                   </div>
-                  <div className="bang-food-chip">
-                    <span>🍕 Stone Oven Pizza</span>
+                  <div className="bang-bento-tile">
+                    <span className="text-xl">🍕</span>
+                    <div>
+                      <strong>Stone Pizza</strong>
+                      <p>Paneer Tikka, Veggie Overload</p>
+                    </div>
                   </div>
-                  <div className="bang-food-chip">
-                    <span>🍟 Crispy Bites</span>
+                  <div className="bang-bento-tile">
+                    <span className="text-xl">🍟</span>
+                    <div>
+                      <strong>Crispy Sides</strong>
+                      <p>Peri Peri Fries, Cheesy Maggi</p>
+                    </div>
                   </div>
+                  <div className="bang-bento-tile">
+                    <span className="text-xl">🧇</span>
+                    <div>
+                      <strong>Desserts</strong>
+                      <p>Nutella Waffles, Brownie Shake</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom App Nav Preview */}
+                <div className="bang-mock-bottom-nav">
+                  <span className="nav-item active">☕ Menu</span>
+                  <span className="nav-item">🗂️ Categories</span>
+                  <span className="nav-item">🛍️ Cart (1)</span>
+                  <span className="nav-item">📋 Orders</span>
                 </div>
               </div>
             )}
 
-            {/* ACT 2: Customize & Order */}
+            {/* ACT 2: CUSTOMIZE & PRE-ORDER CART */}
             {currentAct === 2 && (
-              <div className="bang-act-scene act-cart-preview">
-                <div className="bang-cart-item-block">
-                  <Coffee className="w-6 h-6 text-amber-400" />
-                  <div className="bang-cart-details">
-                    <h4>Artisan Hazelnut Cappuccino</h4>
-                    <p>+ Extra Shot • Velvety Oat Milk</p>
+              <div className="bang-act-screen bang-tour-cart-preview">
+                <div className="bang-cart-expanded-card">
+                  <div className="bang-cart-top">
+                    <div className="bang-cart-prod-info">
+                      <Coffee className="w-8 h-8 text-amber-400" />
+                      <div>
+                        <h4>Hazelnut Cappuccino (Grande)</h4>
+                        <p className="bang-meta">Fresh Double Roast • Whole Milk</p>
+                      </div>
+                    </div>
+                    <span className="bang-cart-price">₹170</span>
                   </div>
-                  <span className="bang-cart-val">₹170</span>
+
+                  {/* Addons Selection in Cart */}
+                  <div className="bang-addons-selector">
+                    <span className="bang-addon-chip selected">✓ Extra Espresso Shot (+₹30)</span>
+                    <span className="bang-addon-chip selected">✓ Hazelnut Drizzle</span>
+                    <span className="bang-addon-chip">Less Sugar</span>
+                  </div>
+
+                  {/* Checkout summary */}
+                  <div className="bang-cart-calc-row">
+                    <span>Subtotal + Taxes</span>
+                    <strong>Total: ₹170.00</strong>
+                  </div>
                 </div>
-                <div className="bang-badge-row">
-                  <span className="bang-mini-tag">✓ Customized</span>
-                  <span className="bang-mini-tag">⚡ 0-Minute Queue</span>
+
+                <div className="bang-preorder-perk-banner">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span>Placed ahead of time • Prepared when you reach</span>
                 </div>
               </div>
             )}
 
-            {/* ACT 3: Razorpay / UPI Instant Checkout */}
+            {/* ACT 3: INSTANT PAY & KITCHEN KDS PIPELINE */}
             {currentAct === 3 && (
-              <div className="bang-act-scene act-payment-preview">
-                <div className="bang-pay-flow">
-                  <CreditCard className="w-7 h-7 text-amber-400" />
-                  <div className="bang-pay-info">
-                    <h4>Instant UPI & Card Checkout</h4>
-                    <p>Zero wait time • Direct Kitchen Forwarding</p>
+              <div className="bang-act-screen bang-tour-payment-preview">
+                <div className="bang-payment-card-layout">
+                  <div className="bang-pay-header">
+                    <CreditCard className="w-6 h-6 text-amber-400" />
+                    <div>
+                      <h4>Zero-Fee Razorpay Payment</h4>
+                      <p>UPI (GPay / PhonePe / Paytm), Credit & Debit Cards</p>
+                    </div>
                   </div>
-                </div>
-                <div className="bang-pay-badge-verified">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Verified & Sent to Kitchen KDS</span>
+
+                  {/* Live Kitchen KDS pipeline state tracker */}
+                  <div className="bang-kds-timeline">
+                    <div className="kds-step completed">
+                      <span className="dot">✓</span>
+                      <span>Order Paid</span>
+                    </div>
+                    <div className="kds-step active">
+                      <span className="dot pulse">2</span>
+                      <span>Kitchen Preparing</span>
+                    </div>
+                    <div className="kds-step">
+                      <span className="dot">3</span>
+                      <span>Ready for Pickup</span>
+                    </div>
+                  </div>
+
+                  <div className="bang-secure-badge">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Socket.IO Live Alerts: Phone rings when order is ready</span>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* ACT 4: The Climax — Real Counter Token & QR Pass */}
+            {/* ACT 4: THE CLIMAX — REAL COUNTER TOKEN & QR PICKUP */}
             {currentAct === 4 && (
-              <div className="bang-act-scene act-qr-token-stage">
-                <div ref={stampRef} className="bang-climax-stamp">
-                  <Store className="w-4 h-4" />
-                  <span>READY FOR PICKUP</span>
-                </div>
-                <div className="bang-token-big">TOKEN #LR-842</div>
-                <div className="bang-qr-surface">
-                  <QRCodeSVG
-                    value="https://laroche-intro.vercel.app/orders/LR-842"
-                    size={96}
-                    level="H"
-                    includeMargin={true}
-                    fgColor="#120e0b"
-                    bgColor="#ffffff"
-                  />
-                  <span className="bang-qr-note">Present at Cafe Counter</span>
+              <div className="bang-act-screen bang-tour-token-preview">
+                <div className="bang-counter-hero-card">
+                  
+                  <div ref={stampRef} className="bang-verified-stamp">
+                    <Store className="w-4 h-4" />
+                    <span>PRESENT AT REAL CAFE COUNTER</span>
+                  </div>
+
+                  <div className="bang-token-display">
+                    <span className="token-label">YOUR COUNTER TOKEN</span>
+                    <h1 className="token-digit">LR-842</h1>
+                  </div>
+
+                  {/* Scannable QR Pass */}
+                  <div className="bang-qr-plate">
+                    <QRCodeSVG
+                      value="https://laroche-intro.vercel.app/orders/LR-842"
+                      size={130}
+                      level="H"
+                      includeMargin={true}
+                      fgColor="#120e0b"
+                      bgColor="#ffffff"
+                    />
+                    <span className="bang-qr-caption">Instant Counter Handover Pass</span>
+                  </div>
+
+                  <p className="bang-token-instruction">
+                    Simply show this token screen at the counter to collect your fresh order without waiting in line!
+                  </p>
                 </div>
               </div>
             )}
 
           </div>
 
-          {/* Minimal 2-level kinetic text below 3D canvas (Anti-PPT Law) */}
+          {/* Minimal 2-Level Kinetic Captions (Strict Anti-PPT Rules) */}
           <div className="bang-kinetic-captions">
-            <p ref={textKickerRef} className="bang-kicker">
-              {currentAct === 1 && 'Zero Waiting Campus Bistro'}
-              {currentAct === 2 && 'Personalized Ahead of Time'}
-              {currentAct === 3 && 'Instant Online Pay'}
-              {currentAct === 4 && 'Skip The Counter Queue'}
-            </p>
-            <h2 ref={textTitleRef} className="bang-title">
-              {currentAct === 1 && 'Pre-order artisan food right from your seat'}
-              {currentAct === 2 && 'Customize toppings and review order cart'}
-              {currentAct === 3 && 'Pay securely via UPI, cards or netbanking'}
-              {currentAct === 4 && 'Flash token at the counter and collect hot'}
-            </h2>
+            <p className="bang-kicker">{activeZone.kicker}</p>
+            <h2 className="bang-title">{activeZone.title}</h2>
           </div>
 
         </div>
@@ -354,19 +440,22 @@ const IntroVideo = ({ onFinish }) => {
           type="button"
           className="bang-enter-cta group"
           onClick={handleFinish}
-          aria-label="Enter Cafe"
+          aria-label="Enter Cafe & Order"
         >
-          <span>Enter Cafe & Order</span>
+          <span>Enter Cafe & Order Now</span>
           <div className="bang-cta-arrow">
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </div>
         </button>
 
         <div className="bang-timeline-rail">
-          {[1, 2, 3, 4].map((actNum) => (
-            <div
-              key={actNum}
-              className={`bang-rail-segment ${currentAct >= actNum ? 'active' : ''}`}
+          {TOUR_ZONES.map((zone) => (
+            <button
+              key={zone.id}
+              type="button"
+              onClick={() => jumpToAct(zone.id)}
+              className={`bang-rail-segment ${currentAct >= zone.id ? 'active' : ''}`}
+              title={zone.label}
             />
           ))}
         </div>

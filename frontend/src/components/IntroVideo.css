@@ -1,6 +1,6 @@
 /* ==========================================================================
    Bang Motion Cinematic Engine (Anti-PPT Compliant)
-   Continuous 3D Camera • Kinetic Depth • Alive Background
+   Expanded 3D Living Canvas covering major portion of screen
    ========================================================================== */
 
 .bang-motion-viewport {
@@ -9,7 +9,8 @@
   z-index: 9999;
   background-color: #070605;
   color: #ffffff;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -17,6 +18,7 @@
   touch-action: pan-y;
   transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bang-motion-viewport.fade-out {
@@ -25,7 +27,7 @@
   pointer-events: none;
 }
 
-/* Composite Background Layers */
+/* Background Layers */
 .bang-bg-video {
   position: fixed;
   inset: 0;
@@ -33,7 +35,7 @@
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  filter: brightness(0.4) contrast(1.15) saturate(1.1);
+  filter: brightness(0.35) contrast(1.15) saturate(1.1);
   z-index: 1;
 }
 
@@ -52,7 +54,7 @@
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at center, rgba(7, 6, 5, 0.4) 0%, rgba(7, 6, 5, 0.92) 100%),
+    radial-gradient(circle at center, rgba(7, 6, 5, 0.3) 0%, rgba(7, 6, 5, 0.95) 100%),
     linear-gradient(to top, rgba(7, 6, 5, 0.98) 0%, rgba(7, 6, 5, 0.3) 50%, rgba(7, 6, 5, 0.9) 100%);
   pointer-events: none;
   z-index: 3;
@@ -62,17 +64,17 @@
   position: fixed;
   top: 45%;
   left: 50%;
-  width: 500px;
-  height: 500px;
-  margin-top: -250px;
-  margin-left: -250px;
-  background: radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(180, 83, 9, 0.08) 45%, transparent 70%);
-  filter: blur(75px);
+  width: 600px;
+  height: 600px;
+  margin-top: -300px;
+  margin-left: -300px;
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.06) 50%, transparent 70%);
+  filter: blur(85px);
   pointer-events: none;
   z-index: 3;
 }
 
-/* Top HUD Controls */
+/* Top HUD */
 .bang-top-hud {
   position: relative;
   z-index: 20;
@@ -149,7 +151,7 @@
   background: rgba(255, 255, 255, 0.22);
 }
 
-/* 3D World & Camera Rig */
+/* 3D World & Camera */
 .bang-world-container {
   position: relative;
   z-index: 10;
@@ -158,6 +160,7 @@
   justify-content: center;
   width: 100%;
   margin: auto 0;
+  padding: 10px 16px;
   perspective: 1200px;
 }
 
@@ -168,31 +171,30 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 440px;
-  padding: 0 16px;
+  max-width: 680px; /* Covers major portion of screen */
 }
 
-/* Living Canvas Card (The Visual Anchor) */
-.bang-anchor-card {
+/* Expanded Living Canvas Card */
+.bang-anchor-card-expanded {
   position: relative;
   transform-style: preserve-3d;
   width: 100%;
-  background: rgba(24, 20, 18, 0.85);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: rgba(22, 18, 15, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   border: 1.5px solid rgba(245, 158, 11, 0.35);
-  border-radius: 26px;
-  padding: 20px;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8),
-              0 0 40px rgba(245, 158, 11, 0.15);
-  min-height: 220px;
+  border-radius: 28px;
+  padding: 22px 24px;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.85),
+              0 0 50px rgba(245, 158, 11, 0.16);
+  min-height: 380px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
 }
 
-/* Scan beam slice */
+/* Laser scan beam */
 .bang-scan-beam {
   position: absolute;
   left: 0;
@@ -205,256 +207,423 @@
   opacity: 0;
 }
 
-/* Top bar on the card */
-.bang-card-topbar {
+/* App Header inside the Mockup */
+.bang-app-header-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
 }
 
-.bang-logo-wrap {
+.bang-app-brand {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.bang-logo-img {
-  max-width: 100px;
-  max-height: 34px;
+.bang-app-logo {
+  max-width: 110px;
+  max-height: 36px;
   object-fit: contain;
 }
 
-.bang-live-state-pill {
+.bang-app-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.06em;
+}
+
+/* Tour Navigator Tabs */
+.bang-tour-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.bang-tour-tab {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'JetBrains Mono', monospace, ui-monospace;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #fbbf24;
-  background: rgba(245, 158, 11, 0.15);
-  padding: 3px 10px;
-  border-radius: 9999px;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-}
-
-.bang-pulse-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-  animation: pulseDot 1.5s infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
-/* ACT 1: Browse Scene */
-.bang-act-scene {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.bang-search-motion-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 0.74rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.bang-typing-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bang-food-row {
-  display: flex;
-  gap: 6px;
-}
-
-.bang-food-chip {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.68rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.03em;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.bang-food-chip.highlight {
+.bang-tour-tab:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.bang-tour-tab.active {
   background: rgba(245, 158, 11, 0.22);
   border-color: #f59e0b;
   color: #fde68a;
 }
 
-/* ACT 2: Customize & Order */
-.bang-cart-item-block {
+/* Act Scenes */
+.bang-act-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  min-height: 250px;
+  justify-content: center;
+}
+
+/* ACT 1: Search & Bento Grid */
+.bang-search-interactive {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.bang-cart-details {
-  flex: 1;
-  text-align: left;
+.bang-search-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.bang-cart-details h4 {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
+.bang-bento-grid-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
-.bang-cart-details p {
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.65);
-  margin: 0;
-}
-
-.bang-cart-val {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #f59e0b;
-}
-
-.bang-badge-row {
-  display: flex;
-  gap: 6px;
-}
-
-.bang-mini-tag {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #a7f3d0;
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  padding: 3px 10px;
-  border-radius: 9999px;
-}
-
-/* ACT 3: Checkout */
-.bang-pay-flow {
+.bang-bento-tile {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   padding: 12px;
+  text-align: left;
+  transition: border-color 0.2s ease;
 }
 
-.bang-pay-info {
+.bang-bento-tile strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.bang-bento-tile p {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.bang-bento-tile.highlight {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.bang-mock-bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bang-mock-bottom-nav .nav-item.active {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+/* ACT 2: Cart & Addons */
+.bang-cart-expanded-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 16px;
   text-align: left;
 }
 
-.bang-pay-info h4 {
-  font-size: 0.85rem;
+.bang-cart-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.bang-cart-prod-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bang-cart-prod-info h4 {
+  font-size: 0.95rem;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 2px 0;
 }
 
-.bang-pay-info p {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.65);
+.bang-meta {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }
 
-.bang-pay-badge-verified {
+.bang-cart-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f59e0b;
+}
+
+.bang-addons-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.bang-addon-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bang-addon-chip.selected {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.bang-cart-calc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bang-preorder-perk-banner {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #6ee7b7;
-  font-size: 0.74rem;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fef3c7;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
-/* ACT 4: Climax Token */
-.act-qr-token-stage {
-  align-items: center;
-  text-align: center;
-  position: relative;
+/* ACT 3: Payment & KDS */
+.bang-payment-card-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
 }
 
-.bang-climax-stamp {
+.bang-pay-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.bang-pay-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.bang-pay-header p {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* KDS Timeline */
+.bang-kds-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.kds-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.kds-step .dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.kds-step.completed {
+  color: #10b981;
+}
+
+.kds-step.completed .dot {
+  background: #10b981;
+  color: #070605;
+}
+
+.kds-step.active {
+  color: #f59e0b;
+}
+
+.kds-step.active .dot {
+  background: #f59e0b;
+  color: #070605;
+}
+
+.bang-secure-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6ee7b7;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+/* ACT 4: Counter Token & Climax */
+.bang-counter-hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bang-verified-stamp {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   color: #070605;
   background: #f59e0b;
   border: 1px solid #fbbf24;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 9999px;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-  margin-bottom: 4px;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.65);
+  margin-bottom: 8px;
 }
 
-.bang-token-big {
+.bang-token-display {
+  margin-bottom: 10px;
+}
+
+.token-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fde68a;
+  letter-spacing: 0.1em;
+}
+
+.token-digit {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.6rem;
+  font-size: clamp(2rem, 5.5vw, 2.75rem);
   font-weight: 900;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: #fbbf24;
-  margin: 2px 0 6px 0;
-  text-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+  margin: 0;
+  text-shadow: 0 0 30px rgba(245, 158, 11, 0.65);
 }
 
-.bang-qr-surface {
+.bang-qr-plate {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background: #ffffff;
-  padding: 8px;
-  border-radius: 14px;
+  padding: 10px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   width: fit-content;
-  margin: 0 auto;
+  margin: 0 auto 10px auto;
 }
 
-.bang-qr-note {
-  font-size: 0.62rem;
+.bang-qr-caption {
+  font-size: 0.65rem;
   font-weight: 800;
   color: #120e0b;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
-/* Kinetic Captions (Strict 2 Levels) */
+.bang-token-instruction {
+  font-size: 0.8rem;
+  color: rgba(254, 243, 199, 0.9);
+  max-width: 420px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Kinetic Captions */
 .bang-kinetic-captions {
   margin-top: 14px;
   text-align: center;
-  max-width: 400px;
+  max-width: 540px;
 }
 
 .bang-kicker {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.74rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
   color: #fbbf24;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -462,7 +631,7 @@
 }
 
 .bang-title {
-  font-size: clamp(1.05rem, 3.8vw, 1.35rem);
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem);
   font-weight: 600;
   color: #ffffff;
   line-height: 1.35;
@@ -490,7 +659,7 @@
   background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   color: #ffffff;
   border: 1px solid rgba(251, 191, 36, 0.45);
-  padding: 13px 32px;
+  padding: 13px 36px;
   border-radius: 9999px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -499,7 +668,7 @@
   box-shadow: 0 10px 25px -4px rgba(217, 119, 6, 0.6),
               0 0 20px rgba(245, 158, 11, 0.25);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .bang-enter-cta:hover {
@@ -520,8 +689,8 @@
 
 .bang-timeline-rail {
   display: flex;
-  gap: 6px;
-  width: 120px;
+  gap: 8px;
+  width: 140px;
 }
 
 .bang-rail-segment {
@@ -529,6 +698,9 @@
   height: 3px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.18);
+  border: none;
+  cursor: pointer;
+  padding: 0;
   transition: all 0.3s ease;
 }
 
@@ -536,14 +708,22 @@
   background: #f59e0b;
 }
 
-/* Responsive */
+/* Mobile Optimizations */
 @media (max-width: 640px) {
-  .bang-anchor-card {
-    border-radius: 20px;
-    padding: 16px;
+  .bang-anchor-card-expanded {
+    padding: 16px 14px;
+    border-radius: 22px;
+    min-height: 360px;
+  }
+  .bang-bento-grid-preview {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bang-bento-tile {
+    padding: 10px;
   }
   .bang-enter-cta {
-    width: 88vw;
-    max-width: 320px;
+    width: 90vw;
+    max-width: 340px;
   }
 }
